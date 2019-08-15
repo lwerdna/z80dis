@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
-# see accompanying README for usage
+# See accompanying README for usage.
+# You probably want `decode()` and `disassemble()`.
+
+# The decoding structure is based on http://www.z80.info/decoding.htm
+# with modifications to match libopcodes or z80ex.
 
 import sys
-from enum import Enum, auto, unique
 import struct
+from enum import Enum, auto, unique
 
 #------------------------------------------------------------------------------
 # ENUMERATIONS
@@ -672,8 +676,6 @@ def decode(data, addr):
             data = data[1:]
             result.len = 1
 
-    #print(prefix)
-
     # 2. UNPREFIXED OPCODES
     if prefix == PREFIX.NONE:
         decode_unprefixed(data, addr, result)
@@ -855,8 +857,6 @@ def oper2str(operType, val=None):
         return REG_TO_STR[operType]
 
 def decoded2str(decoded):
-    #print(decoded)
-
     if decoded.status != DECODE_STATUS.OK:
         return ''
 
