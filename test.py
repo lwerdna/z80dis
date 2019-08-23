@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import re
-import z80
 import sys
 import struct
 import ctypes
 import random
+
+from z80dis import z80
 
 RED = '\x1B[31m'
 NORMAL = '\x1B[0m'

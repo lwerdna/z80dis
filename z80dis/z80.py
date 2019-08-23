@@ -371,8 +371,8 @@ def decode_unprefixed(data, addr, result):
                 result.op = OP.NOP
             elif y == 1:
                 result.op = OP.EX
-                result.operands.append((OPER_TYPE.REG_AF,))
-                result.operands.append((OPER_TYPE.REG_AF_,))
+                result.operands.append((OPER_TYPE.REG_AF, None))
+                result.operands.append((OPER_TYPE.REG_AF_, None))
             elif y == 2:
                 result.op = OP.DJNZ
                 result.operands.append((OPER_TYPE.ADDR, addr + 2 + int8(data[1])))
@@ -389,26 +389,26 @@ def decode_unprefixed(data, addr, result):
             # 16-bit load immediate
             if q == 0:
                 result.op = OP.LD
-                result.operands.append((TABLE_RP[p],))
+                result.operands.append((TABLE_RP[p], None))
                 result.operands.append((OPER_TYPE.IMM, uint16(data[1], data[2])))
                 result.len += 2
             elif q == 1:
                 result.op = OP.ADD
-                result.operands.append((OPER_TYPE.REG_HL,))
-                result.operands.append((TABLE_RP[p],))
+                result.operands.append((OPER_TYPE.REG_HL, None))
+                result.operands.append((TABLE_RP[p], None))
 
         elif z == 2:
             result.op = OP.LD
             if p == 0:
-                result.operands.append((OPER_TYPE.REG_BC_DEREF,))
-                result.operands.append((OPER_TYPE.REG_A,))
+                result.operands.append((OPER_TYPE.REG_BC_DEREF, None))
+                result.operands.append((OPER_TYPE.REG_A, None))
             elif p == 1:
-                result.operands.append((OPER_TYPE.REG_DE_DEREF,))
-                result.operands.append((OPER_TYPE.REG_A,))
+                result.operands.append((OPER_TYPE.REG_DE_DEREF, None))
+                result.operands.append((OPER_TYPE.REG_A, None))
             elif p == 2 or p == 3:
                 result.operands.append((OPER_TYPE.ADDR_DEREF, uint16(data[1], data[2])))
                 result.len += 2
-                result.operands.append((OPER_TYPE.REG_HL if p == 2 else OPER_TYPE.REG_A,))
+                result.operands.append((OPER_TYPE.REG_HL if p == 2 else OPER_TYPE.REG_A, None))
 
             if q:
                 reorder(result)
@@ -418,19 +418,19 @@ def decode_unprefixed(data, addr, result):
                 result.op = OP.DEC
             else:
                 result.op = OP.INC
-            result.operands.append((TABLE_RP[p],))
+            result.operands.append((TABLE_RP[p], None))
 
         elif z == 4:
             result.op = OP.INC
-            result.operands.append((TABLE_R[y],))
+            result.operands.append((TABLE_R[y], None))
 
         elif z == 5:
             result.op = OP.DEC
-            result.operands.append((TABLE_R[y],))
+            result.operands.append((TABLE_R[y], None))
 
         elif z == 6:
             result.op = OP.LD
-            result.operands.append((TABLE_R[y],))
+            result.operands.append((TABLE_R[y], None))
             result.operands.append((OPER_TYPE.IMM, data[1]))
             result.len += 1
 
@@ -444,13 +444,13 @@ def decode_unprefixed(data, addr, result):
         # 8-bit loading
         else:
             result.op = OP.LD
-            result.operands.append((TABLE_R[y],))
-            result.operands.append((TABLE_R[z],))
+            result.operands.append((TABLE_R[y], None))
+            result.operands.append((TABLE_R[z], None))
 
     elif x == 2:
         result.op = TABLE_ALU_OP[y]
-        result.operands.append((OPER_TYPE.REG_A,))
-        result.operands.append((TABLE_R[z],))
+        result.operands.append((OPER_TYPE.REG_A, None))
+        result.operands.append((TABLE_R[z], None))
         if result.op in [OP.SUB, OP.AND, OP.XOR, OP.OR, OP.CP]:
             result.operands = [result.operands[1]]
 
@@ -471,15 +471,15 @@ def decode_unprefixed(data, addr, result):
                     result.op = OP.EXX
                 elif p == 2:
                     result.op = OP.JP
-                    result.operands.append((OPER_TYPE.REG_HL_DEREF,))
+                    result.operands.append((OPER_TYPE.REG_HL_DEREF, None))
                 elif p == 3:
                     result.op = OP.LD
-                    result.operands.append((OPER_TYPE.REG_SP,))
-                    result.operands.append((OPER_TYPE.REG_HL,))
+                    result.operands.append((OPER_TYPE.REG_SP, None))
+                    result.operands.append((OPER_TYPE.REG_HL, None))
 
             else:
                 result.op = OP.POP
-                result.operands.append((TABLE_RP2[p],))
+                result.operands.append((TABLE_RP2[p], None))
 
         # no prefix, x==3, z==2
         elif z == 2:
@@ -500,20 +500,20 @@ def decode_unprefixed(data, addr, result):
                 result.op = OP.OUT
                 result.operands.append((OPER_TYPE.ADDR_DEREF, data[1]))
                 result.len += 1
-                result.operands.append((OPER_TYPE.REG_A,))
+                result.operands.append((OPER_TYPE.REG_A, None))
             elif y == 3:
                 result.op = OP.IN
-                result.operands.append((OPER_TYPE.REG_A,))
+                result.operands.append((OPER_TYPE.REG_A, None))
                 result.operands.append((OPER_TYPE.ADDR_DEREF, data[1]))
                 result.len += 1
             elif y == 4:
                 result.op = OP.EX
-                result.operands.append((OPER_TYPE.REG_SP_DEREF,))
-                result.operands.append((OPER_TYPE.REG_HL,))
+                result.operands.append((OPER_TYPE.REG_SP_DEREF, None))
+                result.operands.append((OPER_TYPE.REG_HL, None))
             elif y == 5:
                 result.op = OP.EX
-                result.operands.append((OPER_TYPE.REG_DE,))
-                result.operands.append((OPER_TYPE.REG_HL,))
+                result.operands.append((OPER_TYPE.REG_DE, None))
+                result.operands.append((OPER_TYPE.REG_HL, None))
             elif y == 6:
                 result.op = OP.DI
             elif y == 7:
@@ -536,12 +536,12 @@ def decode_unprefixed(data, addr, result):
 
             else:
                 result.op = OP.PUSH
-                result.operands.append((TABLE_RP2[p],))
+                result.operands.append((TABLE_RP2[p], None))
 
         elif z == 6:
             # accumulator and immediate
             result.op = TABLE_ALU_OP[y]
-            result.operands.append((OPER_TYPE.REG_A,))
+            result.operands.append((OPER_TYPE.REG_A, None))
             result.operands.append((OPER_TYPE.IMM, data[1]))
             result.len += 1
             if result.op in [OP.SUB, OP.AND, OP.XOR, OP.OR, OP.CP]:
@@ -563,10 +563,10 @@ def decode_cb(data, addr, result):
             result.op = OP.SET
 
         result.operands.append((OPER_TYPE.IMM, y))
-        result.operands.append((TABLE_R[z],))
+        result.operands.append((TABLE_R[z], None))
     else:
         result.op = TABLE_ROT[y]
-        result.operands.append((TABLE_R[z],))
+        result.operands.append((TABLE_R[z], None))
 
 def decode_ed(data, addr, result):
     (x,y,z,p,q) = xyz(data[0])
@@ -577,23 +577,23 @@ def decode_ed(data, addr, result):
         if z == 0:
             result.op = OP.IN
             if y != 6:
-                result.operands.append((TABLE_R[y],))
+                result.operands.append((TABLE_R[y], None))
             else:
-                result.operands.append((OPER_TYPE.REG_F,))
-            result.operands.append((OPER_TYPE.REG_C_DEREF,))
+                result.operands.append((OPER_TYPE.REG_F, None))
+            result.operands.append((OPER_TYPE.REG_C_DEREF, None))
 
         elif z == 1:
             result.op = OP.OUT
-            result.operands.append((OPER_TYPE.REG_C_DEREF,))
+            result.operands.append((OPER_TYPE.REG_C_DEREF, None))
             if y != 6:
-                result.operands.append((TABLE_R[y],))
+                result.operands.append((TABLE_R[y], None))
             else:
                 result.operands.append((OPER_TYPE.IMM, 0))
 
         elif z == 2:
             result.op = OP.SBC
-            result.operands.append((OPER_TYPE.REG_HL,))
-            result.operands.append((TABLE_RP[p],))
+            result.operands.append((OPER_TYPE.REG_HL, None))
+            result.operands.append((TABLE_RP[p], None))
             if q:
                 result.op = OP.ADC
 
@@ -601,7 +601,7 @@ def decode_ed(data, addr, result):
             result.op = OP.LD
             result.operands.append((OPER_TYPE.ADDR_DEREF, uint16(data[1], data[2])))
             result.len += 2
-            result.operands.append((TABLE_RP[p],))
+            result.operands.append((TABLE_RP[p], None))
             if q:
                 reorder(result)
 
@@ -621,20 +621,20 @@ def decode_ed(data, addr, result):
         elif z == 7:
             if y == 0:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_I,))
-                result.operands.append((OPER_TYPE.REG_A,))
+                result.operands.append((OPER_TYPE.REG_I, None))
+                result.operands.append((OPER_TYPE.REG_A, None))
             elif y == 1:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_R,))
-                result.operands.append((OPER_TYPE.REG_A,))
+                result.operands.append((OPER_TYPE.REG_R, None))
+                result.operands.append((OPER_TYPE.REG_A, None))
             elif y == 2:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_A,))
-                result.operands.append((OPER_TYPE.REG_I,))
+                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG_I, None))
             elif y == 3:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_A,))
-                result.operands.append((OPER_TYPE.REG_R,))
+                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG_R, None))
             elif y == 4:
                 result.op = OP.RRD
             elif y == 5:
@@ -717,11 +717,11 @@ def decode(data, addr):
 
             for i in range(len(result.operands)):
                 if result.operands[i][0] == OPER_TYPE.REG_HL:
-                    result.operands[i] = (ra,)
+                    result.operands[i] = (ra, None)
                 if result.operands[i][0] == OPER_TYPE.REG_H:
-                    result.operands[i] = (rb,)
+                    result.operands[i] = (rb, None)
                 if result.operands[i][0] == OPER_TYPE.REG_L:
-                    result.operands[i] = (rc,)
+                    result.operands[i] = (rc, None)
 
     # 7. DDCB/FDCB-PREFIXED OPCODES
     elif prefix in [PREFIX.DDCB, PREFIX.FDCB]:

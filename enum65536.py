@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+# "what can JP instructions look like?"
+# ./enum65536.py | grep jp | sort | unique
+# jp (hl); jp (ix); jp (iy); jp <hex>; jp <cc>,<hex>
+
+# "what can JR instructions look like?
+# ./enum65536.py | grep jp | sort | unique
+# jr <hex>; jr <cc>,<hex>
+
 from z80dis import z80
 from struct import pack
 from binascii import hexlify
@@ -12,4 +20,4 @@ for i in range(65536):
 
 	hexstr = hexlify(data[0:decoded.len]).decode('utf-8')
 	disasm = z80.disasm(decoded)
-	print('%04X: %s %s' % (ADDR, hexstr.ljust(8), disasm))
+	print('%s %04X: %s' % (disasm.ljust(16), ADDR, hexstr))
