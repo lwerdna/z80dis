@@ -8,7 +8,7 @@ setuptools.setup(
     version="1.0.1",
     author="Andrew Lamoureux",
     author_email="foo@bar.com",
-    description="z80 disassembler library",
+    description="Z80 disassembler library",
     long_description=long_description, # load from README.md
     long_description_content_type="text/markdown",
     url="https://github.com/lwerdna/z80dis",
