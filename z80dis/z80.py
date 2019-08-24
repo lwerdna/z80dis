@@ -35,66 +35,58 @@ class INSTRTYPE(Enum):
 @unique
 class OPER_TYPE(Enum):
     NONE = 0
-    # main register set
-    # 8 bit registers individually
-    REG_A = auto()
-    REG_F = auto()
-    REG_B = auto()
-    REG_C = auto()
-    REG_D = auto()
-    REG_E = auto()
-    REG_H = auto()
-    REG_L = auto()
-    REG_C_DEREF = auto()
-    # 8 bit registers in 16-bit groups
-    REG_AF = auto()
-    REG_BC = auto()
-    REG_DE = auto()
-    REG_HL = auto()
-    # deref'd: (BC), (DE), (HL)
-    REG_BC_DEREF = auto() # (BC)
-    REG_DE_DEREF = auto() # (DE)
-    REG_HL_DEREF = auto() # (HL)
-    # alternate register set
-    REG_A_ = auto()
-    REG_F_ = auto()
-    REG_B_ = auto()
-    REG_C_ = auto()
-    REG_D_ = auto()
-    REG_E_ = auto()
-    REG_H_ = auto()
-    REG_L_ = auto()
-    # 8 bit registers in 16-bit groups
-    REG_AF_ = auto()
-    REG_BC_ = auto()
-    REG_DE_ = auto()
-    REG_HL_ = auto()
-    # special purpose registers
-    REG_I = auto()
-    REG_R = auto()
-    REG_IX = auto()
-    REG_IXH = auto()    # IX hi
-    REG_IXL = auto()    # IX lo
-    REG_IY = auto()
-    REG_IYH = auto()    # IY hi
-    REG_IYL = auto()    # IY lo
-    REG_SP = auto()
-    REG_PC = auto()
-    # deref'd
-    REG_SP_DEREF = auto()
+    REG = auto()
+    REG_DEREF = auto()
     ADDR = auto()
     ADDR_DEREF = auto()
     MEM_DISPL_IX = auto()
     MEM_DISPL_IY = auto()
-    #
-    # when the source is an embedded instruction:
-    # LD A = auto() RES 7 = auto() (IX+5)
-    # "attempt reset of bit 7 at (IX+5) = auto() store result in A"
-    SUB_INSTR = auto()
-    #
     IMM = auto()
-    CON = auto()
-    OPER_TYPE_LAST_I = auto()
+    COND = auto()
+
+@unique
+class REG(Enum):
+    NONE = 0
+    # main register set
+    # 8 bit registers individually
+    A = auto()
+    F = auto()
+    B = auto()
+    C = auto()
+    D = auto()
+    E = auto()
+    H = auto()
+    L = auto()
+    # 8 bit registers in 16-bit groups
+    AF = auto()
+    BC = auto()
+    DE = auto()
+    HL = auto()
+    # alternate register set
+    A_ = auto()
+    F_ = auto()
+    B_ = auto()
+    C_ = auto()
+    D_ = auto()
+    E_ = auto()
+    H_ = auto()
+    L_ = auto()
+    # 8 bit registers in 16-bit groups
+    AF_ = auto()
+    BC_ = auto()
+    DE_ = auto()
+    HL_ = auto()
+    # special purpose registers
+    I = auto()
+    R = auto()
+    IX = auto()
+    IXH = auto()    # IX hi
+    IXL = auto()    # IX lo
+    IY = auto()
+    IYH = auto()    # IY hi
+    IYL = auto()    # IY lo
+    SP = auto()
+    PC = auto()
 
 @unique
 class OP(Enum):
@@ -146,32 +138,32 @@ class OP(Enum):
     DEC = auto()
     NEG = auto()
 
-    DAA = auto()				# decimal adjust A
-    CPL = auto()				# complement A
-    SCF = auto()				# set carry flag
-    CCF = auto()				# clear carry flag
+    DAA = auto()                # decimal adjust A
+    CPL = auto()                # complement A
+    SCF = auto()                # set carry flag
+    CCF = auto()                # clear carry flag
     MARKER_END_ARITHMETIC_LOGICAL = auto()
     # ROTATE_SHIFT
-    RLCA = auto()				# rotate left *TO* carry A
-    RRCA = auto()				# right
-    RLA = auto()				# rotate left *THRU* carry A
-    RRA = auto()				# right
+    RLCA = auto()                # rotate left *TO* carry A
+    RRCA = auto()                # right
+    RLA = auto()                # rotate left *THRU* carry A
+    RRA = auto()                # right
     RRD = auto()
     RLD = auto()
     MARKER_END_ROTATE_SHIFT = auto()
     # BIT_MANIPULATION
-    BIT = auto()				# bit test
-    RES = auto()				# bit reset
-    SET = auto()				# bit set
+    BIT = auto()                # bit test
+    RES = auto()                # bit reset
+    SET = auto()                # bit set
     MARKER_END_BIT_MANIPULATION = auto()
     # JUMP_CALL_RETURN
     CALL = auto()
     RET = auto()
-    JP = auto()					# jump
-    JR = auto()					# jump relative
-    DJNZ = auto()				# decrement = auto() jump if not zero
-    RETI = auto()				# return from interrupt
-    RETN = auto()				# return from NMI
+    JP = auto()                    # jump
+    JR = auto()                    # jump relative
+    DJNZ = auto()                # decrement = auto() jump if not zero
+    RETI = auto()                # return from interrupt
+    RETN = auto()                # return from NMI
     MARKER_END_JUMP_CALL_RETURN = auto()
     # INPUT_OUTPUT
     IN = auto()
@@ -179,40 +171,38 @@ class OP(Enum):
     MARKER_END_INPUT_OUTPUT = auto()
     # CPU_CONTROL
     HALT = auto()
-    DI = auto()				# disable interrupts
-    EI = auto()				# enable interrupts
-    IM = auto()				# set interrupt mode
-    RST = auto()			# reset
+    DI = auto()                # disable interrupts
+    EI = auto()                # enable interrupts
+    IM = auto()                # set interrupt mode
+    RST = auto()            # reset
     MARKER_END_CPU_CONTROL = auto()
-    Z80_LAST_I = auto()
 
 @unique
 class FLAGS(Enum):
-    FLAG_C = 1				# carry flag (add/adc, sub/sbb, rla/rra/rls/rrs, rlca/rlc,sla, AND,OR,XOR resets)!
-    FLAG_N = 2				# cleared after ADD, set after SUB (used by DAA)
-    FLAG_PV = 4				# parity/overflow flag
+    FLAG_C = 1                # carry flag (add/adc, sub/sbb, rla/rra/rls/rrs, rlca/rlc,sla, AND,OR,XOR resets)!
+    FLAG_N = 2                # cleared after ADD, set after SUB (used by DAA)
+    FLAG_PV = 4                # parity/overflow flag
     FLAG_F3 = 8
-    FLAG_H = 16				# half-carry flag (if carry from bit 3 to 4)
+    FLAG_H = 16                # half-carry flag (if carry from bit 3 to 4)
     FLAG_F5 = 32
-    FLAG_Z = 64				# zero flag
-    FLAG_S = 128			# sign flag (msb of accumulator)
+    FLAG_Z = 64                # zero flag
+    FLAG_S = 128            # sign flag (msb of accumulator)
 
 @unique
 class CC(Enum):
     ALWAYS = 0
-    C = auto()				# carry
+    C = auto()                # carry
     NOT_C = auto()
-    N = auto()				# add/sub flag
+    N = auto()                # add/sub flag
     NOT_N = auto()
-    P = auto()				# P=1 PARITY (even)
-    NOT_P = auto()			# P=0 NOT PARITY (odd)
-    H = auto()				# half carry
+    P = auto()                # P=1 PARITY (even)
+    NOT_P = auto()            # P=0 NOT PARITY (odd)
+    H = auto()                # half carry
     NOT_H = auto()
-    Z = auto()				# zero
+    Z = auto()                # zero
     NOT_Z = auto()
-    S = auto()				# sign (just msb of A)
+    S = auto()                # sign (just msb of A)
     NOT_S = auto()
-    Z80_CC_LAST_I = auto()
 
 @unique
 class PREFIX(Enum):
@@ -233,13 +223,13 @@ class Decoded():
 
         self.len = 0
         # instruction type
-        self.typ = None				# Z80_INSTRTYPE
-        self.op = None				# Z80_OP
+        self.typ = None                # Z80_INSTRTYPE
+        self.op = None                # Z80_OP
         # list of (OPER_TYPE, VALUE)
         self.operands = []
         # whether the entire instruction's result gets written to a reg
         # (special case for DDCB, FDCB)
-        self.metaLoad = OPER_TYPE.NONE
+        self.metaLoad = (OPER_TYPE.NONE, 0)
 
     def __str__(self):
         result = ''
@@ -260,42 +250,43 @@ class Decoded():
 # (from http:#z80.info/decoding.htm)
 
 TABLE_R = [
-    OPER_TYPE.REG_B,
-    OPER_TYPE.REG_C,
-    OPER_TYPE.REG_D,
-    OPER_TYPE.REG_E,
-    OPER_TYPE.REG_H,
-    OPER_TYPE.REG_L,
-    OPER_TYPE.REG_HL_DEREF,
-    OPER_TYPE.REG_A
+    (OPER_TYPE.REG, REG.B),
+    (OPER_TYPE.REG, REG.C),
+    (OPER_TYPE.REG, REG.D),
+    (OPER_TYPE.REG, REG.E),
+    (OPER_TYPE.REG, REG.H),
+    (OPER_TYPE.REG, REG.L),
+    (OPER_TYPE.REG_DEREF, REG.HL),
+    (OPER_TYPE.REG, REG.A)
 ]
 
 # register pairs featuring SP
 TABLE_RP = [
-    OPER_TYPE.REG_BC,
-    OPER_TYPE.REG_DE,
-    OPER_TYPE.REG_HL,
-    OPER_TYPE.REG_SP
+    (OPER_TYPE.REG, REG.BC),
+    (OPER_TYPE.REG, REG.DE),
+    (OPER_TYPE.REG, REG.HL),
+    (OPER_TYPE.REG, REG.SP)
 ]
 
 # register pairs featuring AF
 TABLE_RP2 = [
-    OPER_TYPE.REG_BC,
-    OPER_TYPE.REG_DE,
-    OPER_TYPE.REG_HL,
-    OPER_TYPE.REG_AF
+    (OPER_TYPE.REG, REG.BC),
+    (OPER_TYPE.REG, REG.DE),
+    (OPER_TYPE.REG, REG.HL),
+    (OPER_TYPE.REG, REG.AF)
 ]
+
 # condition codes
 # see cc table in ZiLOG manual for RET cc
 TABLE_CC = [
-    CC.NOT_Z,			# NZ
-    CC.Z,				# Z
-    CC.NOT_C,			# NC
-    CC.C,				# C
-    CC.NOT_P,			# PO (parity odd == no pariy
-    CC.P,				# PE (parity even == parity
-    CC.NOT_S,			# P sign positive
-    CC.S				# M sign negative
+    CC.NOT_Z,            # NZ
+    CC.Z,                # Z
+    CC.NOT_C,            # NC
+    CC.C,                # C
+    CC.NOT_P,            # PO (parity odd == no pariy
+    CC.P,                # PE (parity even == parity
+    CC.NOT_S,            # P sign positive
+    CC.S                # M sign negative
 ]
 # arithm/logic
 TABLE_ALU_OP = [
@@ -371,15 +362,15 @@ def decode_unprefixed(data, addr, result):
                 result.op = OP.NOP
             elif y == 1:
                 result.op = OP.EX
-                result.operands.append((OPER_TYPE.REG_AF, None))
-                result.operands.append((OPER_TYPE.REG_AF_, None))
+                result.operands.append((OPER_TYPE.REG, REG.AF))
+                result.operands.append((OPER_TYPE.REG, REG.AF_))
             elif y == 2:
                 result.op = OP.DJNZ
                 result.operands.append((OPER_TYPE.ADDR, addr + 2 + int8(data[1])))
                 result.len += 1
             else: # 3,4,5,6,7
                 result.op = OP.JR
-                result.operands.append((OPER_TYPE.CON, TABLE_CC[y-4]))
+                result.operands.append((OPER_TYPE.COND, TABLE_CC[y-4]))
                 result.operands.append((OPER_TYPE.ADDR, addr + 2 + int8(data[1])))
                 result.len += 1
                 if y == 3:
@@ -389,26 +380,29 @@ def decode_unprefixed(data, addr, result):
             # 16-bit load immediate
             if q == 0:
                 result.op = OP.LD
-                result.operands.append((TABLE_RP[p], None))
+                result.operands.append(TABLE_RP[p])
                 result.operands.append((OPER_TYPE.IMM, uint16(data[1], data[2])))
                 result.len += 2
             elif q == 1:
                 result.op = OP.ADD
-                result.operands.append((OPER_TYPE.REG_HL, None))
-                result.operands.append((TABLE_RP[p], None))
+                result.operands.append((OPER_TYPE.REG, REG.HL))
+                result.operands.append(TABLE_RP[p])
 
         elif z == 2:
             result.op = OP.LD
             if p == 0:
-                result.operands.append((OPER_TYPE.REG_BC_DEREF, None))
-                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG_DEREF, REG.BC))
+                result.operands.append((OPER_TYPE.REG, REG.A))
             elif p == 1:
-                result.operands.append((OPER_TYPE.REG_DE_DEREF, None))
-                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG_DEREF, REG.DE))
+                result.operands.append((OPER_TYPE.REG, REG.A))
             elif p == 2 or p == 3:
                 result.operands.append((OPER_TYPE.ADDR_DEREF, uint16(data[1], data[2])))
                 result.len += 2
-                result.operands.append((OPER_TYPE.REG_HL if p == 2 else OPER_TYPE.REG_A, None))
+                if p == 2:
+                    result.operands.append((OPER_TYPE.REG, REG.HL))
+                else:
+                    result.operands.append((OPER_TYPE.REG, REG.A))
 
             if q:
                 reorder(result)
@@ -418,19 +412,19 @@ def decode_unprefixed(data, addr, result):
                 result.op = OP.DEC
             else:
                 result.op = OP.INC
-            result.operands.append((TABLE_RP[p], None))
+            result.operands.append(TABLE_RP[p])
 
         elif z == 4:
             result.op = OP.INC
-            result.operands.append((TABLE_R[y], None))
+            result.operands.append(TABLE_R[y])
 
         elif z == 5:
             result.op = OP.DEC
-            result.operands.append((TABLE_R[y], None))
+            result.operands.append(TABLE_R[y])
 
         elif z == 6:
             result.op = OP.LD
-            result.operands.append((TABLE_R[y], None))
+            result.operands.append(TABLE_R[y])
             result.operands.append((OPER_TYPE.IMM, data[1]))
             result.len += 1
 
@@ -444,13 +438,13 @@ def decode_unprefixed(data, addr, result):
         # 8-bit loading
         else:
             result.op = OP.LD
-            result.operands.append((TABLE_R[y], None))
-            result.operands.append((TABLE_R[z], None))
+            result.operands.append(TABLE_R[y])
+            result.operands.append(TABLE_R[z])
 
     elif x == 2:
         result.op = TABLE_ALU_OP[y]
-        result.operands.append((OPER_TYPE.REG_A, None))
-        result.operands.append((TABLE_R[z], None))
+        result.operands.append((OPER_TYPE.REG, REG.A))
+        result.operands.append(TABLE_R[z])
         if result.op in [OP.SUB, OP.AND, OP.XOR, OP.OR, OP.CP]:
             result.operands = [result.operands[1]]
 
@@ -459,7 +453,7 @@ def decode_unprefixed(data, addr, result):
         # no prefix, x==3, z==0
         if z == 0:
             result.op = OP.RET
-            result.operands.append((OPER_TYPE.CON, TABLE_CC[y]))
+            result.operands.append((OPER_TYPE.COND, TABLE_CC[y]))
 
         # pop and various ops
         # no prefix, x==3, z==1
@@ -471,20 +465,20 @@ def decode_unprefixed(data, addr, result):
                     result.op = OP.EXX
                 elif p == 2:
                     result.op = OP.JP
-                    result.operands.append((OPER_TYPE.REG_HL_DEREF, None))
+                    result.operands.append((OPER_TYPE.REG_DEREF, REG.HL))
                 elif p == 3:
                     result.op = OP.LD
-                    result.operands.append((OPER_TYPE.REG_SP, None))
-                    result.operands.append((OPER_TYPE.REG_HL, None))
+                    result.operands.append((OPER_TYPE.REG, REG.SP))
+                    result.operands.append((OPER_TYPE.REG, REG.HL))
 
             else:
                 result.op = OP.POP
-                result.operands.append((TABLE_RP2[p], None))
+                result.operands.append(TABLE_RP2[p])
 
         # no prefix, x==3, z==2
         elif z == 2:
             result.op = OP.JP
-            result.operands.append((OPER_TYPE.CON, TABLE_CC[y]))
+            result.operands.append((OPER_TYPE.COND, TABLE_CC[y]))
             result.operands.append((OPER_TYPE.ADDR, uint16(data[1], data[2])))
             result.len += 2
 
@@ -500,20 +494,20 @@ def decode_unprefixed(data, addr, result):
                 result.op = OP.OUT
                 result.operands.append((OPER_TYPE.ADDR_DEREF, data[1]))
                 result.len += 1
-                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG, REG.A))
             elif y == 3:
                 result.op = OP.IN
-                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG, REG.A))
                 result.operands.append((OPER_TYPE.ADDR_DEREF, data[1]))
                 result.len += 1
             elif y == 4:
                 result.op = OP.EX
-                result.operands.append((OPER_TYPE.REG_SP_DEREF, None))
-                result.operands.append((OPER_TYPE.REG_HL, None))
+                result.operands.append((OPER_TYPE.REG_DEREF, REG.SP))
+                result.operands.append((OPER_TYPE.REG, REG.HL))
             elif y == 5:
                 result.op = OP.EX
-                result.operands.append((OPER_TYPE.REG_DE, None))
-                result.operands.append((OPER_TYPE.REG_HL, None))
+                result.operands.append((OPER_TYPE.REG, REG.DE))
+                result.operands.append((OPER_TYPE.REG, REG.HL))
             elif y == 6:
                 result.op = OP.DI
             elif y == 7:
@@ -521,7 +515,7 @@ def decode_unprefixed(data, addr, result):
 
         elif z == 4:
             result.op = OP.CALL
-            result.operands.append((OPER_TYPE.CON, TABLE_CC[y]))
+            result.operands.append((OPER_TYPE.COND, TABLE_CC[y]))
             result.operands.append((OPER_TYPE.ADDR, uint16(data[1], data[2])))
             result.len += 2
         elif z == 5:
@@ -536,12 +530,12 @@ def decode_unprefixed(data, addr, result):
 
             else:
                 result.op = OP.PUSH
-                result.operands.append((TABLE_RP2[p], None))
+                result.operands.append(TABLE_RP2[p])
 
         elif z == 6:
             # accumulator and immediate
             result.op = TABLE_ALU_OP[y]
-            result.operands.append((OPER_TYPE.REG_A, None))
+            result.operands.append((OPER_TYPE.REG, REG.A))
             result.operands.append((OPER_TYPE.IMM, data[1]))
             result.len += 1
             if result.op in [OP.SUB, OP.AND, OP.XOR, OP.OR, OP.CP]:
@@ -563,10 +557,10 @@ def decode_cb(data, addr, result):
             result.op = OP.SET
 
         result.operands.append((OPER_TYPE.IMM, y))
-        result.operands.append((TABLE_R[z], None))
+        result.operands.append(TABLE_R[z])
     else:
         result.op = TABLE_ROT[y]
-        result.operands.append((TABLE_R[z], None))
+        result.operands.append(TABLE_R[z])
 
 def decode_ed(data, addr, result):
     (x,y,z,p,q) = xyz(data[0])
@@ -577,23 +571,23 @@ def decode_ed(data, addr, result):
         if z == 0:
             result.op = OP.IN
             if y != 6:
-                result.operands.append((TABLE_R[y], None))
+                result.operands.append(TABLE_R[y])
             else:
-                result.operands.append((OPER_TYPE.REG_F, None))
-            result.operands.append((OPER_TYPE.REG_C_DEREF, None))
+                result.operands.append((OPER_TYPE.REG, REG.F))
+            result.operands.append((OPER_TYPE.REG_DEREF, REG.C))
 
         elif z == 1:
             result.op = OP.OUT
-            result.operands.append((OPER_TYPE.REG_C_DEREF, None))
+            result.operands.append((OPER_TYPE.REG_DEREF, REG.C))
             if y != 6:
-                result.operands.append((TABLE_R[y], None))
+                result.operands.append(TABLE_R[y])
             else:
                 result.operands.append((OPER_TYPE.IMM, 0))
 
         elif z == 2:
             result.op = OP.SBC
-            result.operands.append((OPER_TYPE.REG_HL, None))
-            result.operands.append((TABLE_RP[p], None))
+            result.operands.append((OPER_TYPE.REG, REG.HL))
+            result.operands.append(TABLE_RP[p])
             if q:
                 result.op = OP.ADC
 
@@ -601,7 +595,7 @@ def decode_ed(data, addr, result):
             result.op = OP.LD
             result.operands.append((OPER_TYPE.ADDR_DEREF, uint16(data[1], data[2])))
             result.len += 2
-            result.operands.append((TABLE_RP[p], None))
+            result.operands.append(TABLE_RP[p])
             if q:
                 reorder(result)
 
@@ -621,20 +615,20 @@ def decode_ed(data, addr, result):
         elif z == 7:
             if y == 0:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_I, None))
-                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG, REG.I))
+                result.operands.append((OPER_TYPE.REG, REG.A))
             elif y == 1:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_R, None))
-                result.operands.append((OPER_TYPE.REG_A, None))
+                result.operands.append((OPER_TYPE.REG, REG.R))
+                result.operands.append((OPER_TYPE.REG, REG.A))
             elif y == 2:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_A, None))
-                result.operands.append((OPER_TYPE.REG_I, None))
+                result.operands.append((OPER_TYPE.REG, REG.A))
+                result.operands.append((OPER_TYPE.REG, REG.I))
             elif y == 3:
                 result.op = OP.LD
-                result.operands.append((OPER_TYPE.REG_A, None))
-                result.operands.append((OPER_TYPE.REG_R, None))
+                result.operands.append((OPER_TYPE.REG, REG.A))
+                result.operands.append((OPER_TYPE.REG, REG.R))
             elif y == 4:
                 result.op = OP.RRD
             elif y == 5:
@@ -717,11 +711,11 @@ def decode(data, addr):
 
             for i in range(len(result.operands)):
                 if result.operands[i][0] == OPER_TYPE.REG_HL:
-                    result.operands[i] = (ra, None)
+                    result.operands[i] = (OPER_TYPE.REG, ra)
                 if result.operands[i][0] == OPER_TYPE.REG_H:
-                    result.operands[i] = (rb, None)
+                    result.operands[i] = (OPER_TYPE.REG, rb)
                 if result.operands[i][0] == OPER_TYPE.REG_L:
-                    result.operands[i] = (rc, None)
+                    result.operands[i] = (OPER_TYPE.REG, rc)
 
     # 7. DDCB/FDCB-PREFIXED OPCODES
     elif prefix in [PREFIX.DDCB, PREFIX.FDCB]:
@@ -778,40 +772,6 @@ CC_TO_STR = {
     CC.NOT_H:"nh", CC.H:"h"
 }
 
-OP_TO_STR = {
-    OP.NOP:"nop", OP.NONI:"noni", OP.LD:"ld", OP.EX:"ex", OP.EXX:"exx",
-    OP.POP:"pop", OP.PUSH:"push", OP.LDI:"ldi", OP.CPI:"cpi", OP.INI:"ini",
-    OP.OUTI:"outi", OP.LDD:"ldd", OP.CPD:"cpd", OP.IND:"ind", OP.OUTD:"outd",
-    OP.LDIR:"ldir", OP.CPIR:"cpir", OP.INIR:"inir", OP.OTIR:"otir",
-    OP.LDDR:"lddr", OP.CPDR:"cpdr", OP.INDR:"indr", OP.OTDR:"otdr",
-    OP.ADD:"add", OP.ADC:"adc", OP.SUB:"sub", OP.SBC:"sbc", OP.AND:"and",
-    OP.XOR:"xor", OP.OR:"or", OP.CP:"cp", OP.RLC:"rlc", OP.RRC:"rrc",
-    OP.RL:"rl", OP.RR:"rr", OP.SLA:"sla", OP.SRA:"sra", OP.SLL:"sll",
-    OP.SRL:"srl", OP.INC:"inc", OP.DEC:"dec", OP.NEG:"neg", OP.DAA:"daa",
-    OP.CPL:"cpl", OP.SCF:"scf", OP.CCF:"ccf", OP.RETN:"retn", OP.RLCA:"rlca",
-    OP.RRCA:"rrca", OP.RLA:"rla", OP.RRA:"rra", OP.RRD:"rrd", OP.RLD:"rld",
-    OP.BIT:"bit", OP.RES:"res", OP.SET:"set", OP.CALL:"call", OP.RET:"ret",
-    OP.JP:"jp", OP.JR:"jr", OP.DJNZ:"djnz", OP.RETI:"reti", OP.IN:"in",
-    OP.OUT:"out", OP.HALT:"halt", OP.DI:"di", OP.EI:"ei", OP.IM:"im",
-    OP.RST:"rst"
-}
-
-REG_TO_STR = {
-    OPER_TYPE.REG_A:"a", OPER_TYPE.REG_F:"f", OPER_TYPE.REG_B:"b", OPER_TYPE.REG_C:"c",
-    OPER_TYPE.REG_D:"d", OPER_TYPE.REG_E:"e", OPER_TYPE.REG_H:"h", OPER_TYPE.REG_L:"l",
-    OPER_TYPE.REG_C_DEREF:"(c)", OPER_TYPE.REG_AF:"af", OPER_TYPE.REG_BC:"bc",
-    OPER_TYPE.REG_DE:"de", OPER_TYPE.REG_HL:"hl", OPER_TYPE.REG_BC_DEREF:"(bc)",
-    OPER_TYPE.REG_DE_DEREF:"(de)", OPER_TYPE.REG_HL_DEREF:"(hl)", OPER_TYPE.REG_A_:"a'",
-    OPER_TYPE.REG_F_:"f'", OPER_TYPE.REG_B_:"b'", OPER_TYPE.REG_C_:"c'",
-    OPER_TYPE.REG_D_:"d'", OPER_TYPE.REG_E_:"e'", OPER_TYPE.REG_H_:"h'",
-    OPER_TYPE.REG_L_:"l'", OPER_TYPE.REG_AF_:"af'", OPER_TYPE.REG_BC_:"bc'",
-    OPER_TYPE.REG_DE_:"de'", OPER_TYPE.REG_HL_:"hl'", OPER_TYPE.REG_I:"i",
-    OPER_TYPE.REG_R:"r", OPER_TYPE.REG_IX:"ix", OPER_TYPE.REG_IXH:"ixh",
-    OPER_TYPE.REG_IXL:"ixl", OPER_TYPE.REG_IY:"iy", OPER_TYPE.REG_IYH:"iyh",
-    OPER_TYPE.REG_IYL:"iyl", OPER_TYPE.REG_SP:"sp", OPER_TYPE.REG_PC:"pc",
-    OPER_TYPE.REG_SP_DEREF:"(sp)"
-}
-
 def uint2str(d):
     if d == 0:
         return '0'
@@ -830,7 +790,18 @@ def displ2str(d):
         return '-0x%x' % (-d)
     return '%d' % d
 
-def oper2str(operType, val=None):
+def reg2str(r):
+    # enum AF_ should be returned as AF'
+    reg_name = r.name
+    return reg_name if reg_name[-1] != '_' else reg_name[:-1]+"'"
+
+def oper2str(operType, val):
+    if operType == OPER_TYPE.REG:
+        return reg2str(val)
+
+    elif operType == OPER_TYPE.REG_DEREF:
+        return '(%s)' % reg2str(val)
+
     if operType == OPER_TYPE.ADDR:
         if val < 0:
             val = val & 0xFFFF
@@ -843,32 +814,28 @@ def oper2str(operType, val=None):
         lookup = {OPER_TYPE.MEM_DISPL_IX:'ix', OPER_TYPE.MEM_DISPL_IY:'iy'}
         return '(%s%s)' % (lookup[operType], displ2str(val))
 
-    elif operType == OPER_TYPE.ADDR:
-        return '0x%04X' % val
-
     elif operType == OPER_TYPE.IMM:
         return uint2str(val)
 
-    elif operType == OPER_TYPE.CON:
+    elif operType == OPER_TYPE.COND:
         return CC_TO_STR[val]
 
     else:
-        # eg REG_A -> 'A'
-        return REG_TO_STR[operType]
+        raise Exception('unknown operType: %s' % operType)
 
 def decoded2str(decoded):
     if decoded.status != DECODE_STATUS.OK:
         return ''
 
-    result = OP_TO_STR[decoded.op]
+    result = decoded.op.name
 
     if decoded.operands:
         result += ' '
 
     result += ','.join(map(lambda operTypeAndValue: oper2str(*operTypeAndValue), decoded.operands))
 
-    if decoded.metaLoad != OPER_TYPE.NONE:
-        result = 'ld %s,%s' % (REG_TO_STR[decoded.metaLoad], result)
+    if decoded.metaLoad[0] != OPER_TYPE.NONE:
+        result = 'ld %s,%s' % (REG_TO_STR[decoded.metaLoad[0][1]], result)
 
     return result
 
