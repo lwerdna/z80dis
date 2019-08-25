@@ -79,16 +79,23 @@ extern "C" int get_disasm_libopcodes(uint32_t addr, uint8_t *data, int len, char
 	return 0;
 }
 
+uint8_t z80ex_data[8];
+uint16_t z80ex_base_addr;
+
 uint8_t readbyte_cb(uint16_t addr, void *user)
 {
-	return ((uint8_t *)user)[addr];
+	return z80ex_data[addr - z80ex_base_addr];
 }
 
 extern "C" int get_disasm_z80ex(uint32_t addr, uint8_t *data, int datalen, char *result, int *length)
 {
 	int t_states, t_states2;
 	int instr_len;
-	*length = z80ex_dasm(result, 32, 0, &t_states, &t_states2, readbyte_cb, 0, data);
+
+	memcpy(z80ex_data, data, datalen);
+	z80ex_base_addr = addr;
+
+	*length = z80ex_dasm(result, 32, 0, &t_states, &t_states2, readbyte_cb, addr, 0);
 
 	//printf("instruction length: %d\n", instr_len);
 	//printf("%s\n", output);

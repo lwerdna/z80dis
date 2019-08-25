@@ -254,10 +254,5 @@ if __name__ == '__main__':
     # all non-prefixed opcodes
     else:
        for insword in range(65536):
-            data = struct.pack('<H', insword) + b'\xAB\xCD' #struct.pack('<H', random.randint(65535))
-            bytes_ = struct.unpack('BBBB', data)
-
-            if data[0] in [0xCB, 0xED, 0xDD, 0xFD]:
-                continue
-
-            differential_disassemble(data, 0)
+            data = struct.pack('>H', insword) + b'\xAB\xCD\xEF\x00' #struct.pack('<H', random.randint(65535))
+            differential_disassemble(data, 0xDEAD)

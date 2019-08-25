@@ -229,7 +229,7 @@ class Decoded():
         self.operands = []
         # whether the entire instruction's result gets written to a reg
         # (special case for DDCB, FDCB)
-        self.metaLoad = (OPER_TYPE.NONE, 0)
+        self.metaLoad = None
 
     def __str__(self):
         result = ''
@@ -658,7 +658,7 @@ def decode(data, addr):
     elif data[0] in [0xDD, 0xFD]:
         if data[1] in [0xDD, 0xED, 0xFD]:
             result.len = 1
-            result.opc = OP.NOP
+            result.op = OP.NOP
             return result
         if data[1] == 0xCB:
             prefix = PREFIX.DDCB if data[0] == 0xDD else PREFIX.FDCB
@@ -686,9 +686,11 @@ def decode(data, addr):
     # 6. FD-PREFIXED OPCODES
     elif prefix == PREFIX.DD or prefix == PREFIX.FD:
         if prefix == PREFIX.DD:
-            (ra, rb, rc, rd) = (OPER_TYPE.REG_IX, OPER_TYPE.REG_IXH, OPER_TYPE.REG_IXL, OPER_TYPE.MEM_DISPL_IX)
+            (reg_a, reg_b, reg_c) = (REG.IX, REG.IXH, REG.IXL)
+            oper_type = OPER_TYPE.MEM_DISPL_IX
         else:
-            (ra, rb, rc, rd) = (OPER_TYPE.REG_IY, OPER_TYPE.REG_IYH, OPER_TYPE.REG_IYL, OPER_TYPE.MEM_DISPL_IY)
+            (reg_a, reg_b, reg_c) = (REG.IY, REG.IYH, REG.IYL)
+            oper_type = OPER_TYPE.MEM_DISPL_IY
 
         if will_deref_hl(data[0]):
             if data[0] == 0xE9: # exceptional "JP (HL)" case
@@ -700,8 +702,8 @@ def decode(data, addr):
                 decode_unprefixed(data[0:1]+data[2:], addr, result)
 
             for i in range(len(result.operands)):
-                if result.operands[i][0] == OPER_TYPE.REG_HL_DEREF:
-                    result.operands[i] = (rd, displ)
+                if result.operands[i] == (OPER_TYPE.REG_DEREF, REG.HL):
+                    result.operands[i] = (oper_type, displ)
 
         elif data[0] == 0xEB: # exceptional "EX DE,HL" case
             decode_unprefixed(data, addr+1, result)
@@ -710,12 +712,12 @@ def decode(data, addr):
             decode_unprefixed(data, addr+1, result)
 
             for i in range(len(result.operands)):
-                if result.operands[i][0] == OPER_TYPE.REG_HL:
-                    result.operands[i] = (OPER_TYPE.REG, ra)
-                if result.operands[i][0] == OPER_TYPE.REG_H:
-                    result.operands[i] = (OPER_TYPE.REG, rb)
-                if result.operands[i][0] == OPER_TYPE.REG_L:
-                    result.operands[i] = (OPER_TYPE.REG, rc)
+                if result.operands[i] == (OPER_TYPE.REG, REG.HL):
+                    result.operands[i] = (OPER_TYPE.REG, reg_a)
+                if result.operands[i] == (OPER_TYPE.REG, REG.H):
+                    result.operands[i] = (OPER_TYPE.REG, reg_b)
+                if result.operands[i] == (OPER_TYPE.REG, REG.L):
+                    result.operands[i] = (OPER_TYPE.REG, reg_c)
 
     # 7. DDCB/FDCB-PREFIXED OPCODES
     elif prefix in [PREFIX.DDCB, PREFIX.FDCB]:
@@ -795,33 +797,33 @@ def reg2str(r):
     reg_name = r.name
     return reg_name if reg_name[-1] != '_' else reg_name[:-1]+"'"
 
-def oper2str(operType, val):
-    if operType == OPER_TYPE.REG:
+def oper2str(oper_type, val):
+    if oper_type == OPER_TYPE.REG:
         return reg2str(val)
 
-    elif operType == OPER_TYPE.REG_DEREF:
+    elif oper_type == OPER_TYPE.REG_DEREF:
         return '(%s)' % reg2str(val)
 
-    if operType == OPER_TYPE.ADDR:
+    if oper_type == OPER_TYPE.ADDR:
         if val < 0:
             val = val & 0xFFFF
         return '0x%04x' % val
 
-    elif operType == OPER_TYPE.ADDR_DEREF:
+    elif oper_type == OPER_TYPE.ADDR_DEREF:
         return '(0x%04x)' % val
 
-    elif operType in [OPER_TYPE.MEM_DISPL_IX, OPER_TYPE.MEM_DISPL_IY]:
+    elif oper_type in [OPER_TYPE.MEM_DISPL_IX, OPER_TYPE.MEM_DISPL_IY]:
         lookup = {OPER_TYPE.MEM_DISPL_IX:'ix', OPER_TYPE.MEM_DISPL_IY:'iy'}
-        return '(%s%s)' % (lookup[operType], displ2str(val))
+        return '(%s%s)' % (lookup[oper_type], displ2str(val))
 
-    elif operType == OPER_TYPE.IMM:
+    elif oper_type == OPER_TYPE.IMM:
         return uint2str(val)
 
-    elif operType == OPER_TYPE.COND:
+    elif oper_type == OPER_TYPE.COND:
         return CC_TO_STR[val]
 
     else:
-        raise Exception('unknown operType: %s' % operType)
+        raise Exception('unknown oper_type: %s' % oper_type)
 
 def decoded2str(decoded):
     if decoded.status != DECODE_STATUS.OK:
@@ -832,10 +834,12 @@ def decoded2str(decoded):
     if decoded.operands:
         result += ' '
 
-    result += ','.join(map(lambda operTypeAndValue: oper2str(*operTypeAndValue), decoded.operands))
+    result += ','.join([oper2str(*oper) for oper in decoded.operands])
 
-    if decoded.metaLoad[0] != OPER_TYPE.NONE:
-        result = 'ld %s,%s' % (REG_TO_STR[decoded.metaLoad[0][1]], result)
+    if decoded.metaLoad:
+        (oper_type, oper_val) = decoded.metaLoad
+        assert oper_type == OPER_TYPE.REG
+        result = 'ld %s,%s' % (reg2str(oper_val), result)
 
     return result
 

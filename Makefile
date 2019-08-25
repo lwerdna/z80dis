@@ -17,6 +17,9 @@ gofer.so: gofer.cpp
 package:
 	python3 setup.py sdist bdist_wheel
 
+install:
+	pip install ./dist/*.whl
+
 pypitest:
 	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 	# https://test.pypi.org/project/z80dis
