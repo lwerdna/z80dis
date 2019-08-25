@@ -813,7 +813,7 @@ def oper2str(oper_type, val):
         return '(0x%04x)' % val
 
     elif oper_type in [OPER_TYPE.MEM_DISPL_IX, OPER_TYPE.MEM_DISPL_IY]:
-        lookup = {OPER_TYPE.MEM_DISPL_IX:'ix', OPER_TYPE.MEM_DISPL_IY:'iy'}
+        lookup = {OPER_TYPE.MEM_DISPL_IX:'IX', OPER_TYPE.MEM_DISPL_IY:'IY'}
         return '(%s%s)' % (lookup[oper_type], displ2str(val))
 
     elif oper_type == OPER_TYPE.IMM:
