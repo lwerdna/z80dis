@@ -644,6 +644,8 @@ def decode_ed(data, addr, result):
 
 def decode(data, addr):
     result = Decoded()
+    if not data:
+        return result
 
     # prefix determination
     prefix = PREFIX.NONE
@@ -656,11 +658,11 @@ def decode(data, addr):
         data = data[1:]
         result.len = 1
     elif data[0] in [0xDD, 0xFD]:
-        if data[1] in [0xDD, 0xED, 0xFD]:
+        if data[1:] and data[1] in [0xDD, 0xED, 0xFD]:
             result.len = 1
             result.op = OP.NOP
             return result
-        if data[1] == 0xCB:
+        if data[1:] and data[1] == 0xCB:
             prefix = PREFIX.DDCB if data[0] == 0xDD else PREFIX.FDCB
             data = data[2:]
             result.len = 2
@@ -669,6 +671,9 @@ def decode(data, addr):
             prefix = PREFIX.DD if data[0] == 0xDD else PREFIX.FD
             data = data[1:]
             result.len = 1
+
+    if not data:
+        return result
 
     # 2. UNPREFIXED OPCODES
     if prefix == PREFIX.NONE:

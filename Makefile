@@ -18,7 +18,7 @@ package:
 	python3 setup.py sdist bdist_wheel
 
 install:
-	pip install ./dist/*.whl
+	pip install --ignore-installed ./dist/*.whl
 
 pypitest:
 	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
