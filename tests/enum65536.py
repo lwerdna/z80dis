@@ -15,9 +15,9 @@ from binascii import hexlify
 ADDR = 0xDEAD
 
 for i in range(65536):
-	data = pack('>H', i) + b'\xAB\xCD\xEF\x00'
-	decoded = z80.decode(data, ADDR)
+    data = pack('>H', i) + b'\xAB\xCD\xEF\x00'
+    decoded = z80.decode(data, ADDR)
 
-	hexstr = hexlify(data[0:decoded.len]).decode('utf-8')
-	disasm = z80.disasm(decoded)
-	print('%s %04X: %s' % (disasm.ljust(16), ADDR, hexstr))
+    hexstr = hexlify(data[0:decoded.len]).decode('utf-8')
+    disasm = z80.disasm(decoded)
+    print('%s %04X: %s' % (disasm.ljust(16), ADDR, hexstr))
