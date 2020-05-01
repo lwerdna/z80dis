@@ -1,4 +1,7 @@
-/* a shared object that can be called easily with python+ctypes */
+/* a shared object that can be called easily with python+ctypes
+	to call two other disassemblers for comparison: libopcodes, z80ex
+	see the comments in the Makefile for build notes
+*/
 
 /* */
 #include <stdint.h>
