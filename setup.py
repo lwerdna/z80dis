@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="z80dis",
-    version="1.0.5",
+    version="1.0.6",
     author="Andrew Lamoureux",
     author_email="foo@bar.com",
     description="Z80 disassembler library",

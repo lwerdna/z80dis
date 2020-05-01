@@ -24,7 +24,7 @@ Or, if you'd like access to the instruction internals, like opcode identifier, l
 2
 ```
 
-The decoded structure can still be made into a string:
+The decoded structure can be supplied to disasm() to make a string:
 
 ```
 >>> z80.disasm(decoded)
